@@ -1,5 +1,4 @@
 apply plugin: 'com.android.library'
-apply plugin: 'maven-publish'
 
 import groovy.json.JsonSlurper
 
@@ -107,33 +106,5 @@ afterEvaluate {
         bundleReleaseAar.finalizedBy copyHeadersToAARRelease
         copyHeadersToAARRelease.finalizedBy renameAARRelease
         renameAARRelease.finalizedBy removeOldAARRelease
-    }
-}
-
-def githubProperties = new Properties()
-githubProperties.load(new FileInputStream(rootProject.file("github.properties")))
-
-def getArtifactId = { ->
-    return "liquidcore-V8"
-}
-publishing {
-    publications {
-        bar(MavenPublication) {
-            groupId 'org.liquidplayer'
-            artifactId getArtifactId()
-            version '0.7.0-rc0' //getVersionFromNpm()
-            artifact("$buildDir/outputs/aar/${getArtifactId()}-release.aar")
-        }
-    }
-
-    repositories {
-        maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/LiquidPlayer/LiquidCore")
-            credentials {
-                username = githubProperties['gpr.user'] ?: System.getenv("GPR_USER")
-                password = githubProperties['gpr.key'] ?: System.getenv("GPR_API_KEY")
-            }
-        }
     }
 }
