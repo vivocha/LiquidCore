@@ -1430,7 +1430,6 @@ __d(function (global, _$$_REQUIRE, module, exports, _dependencyMap) {
   console.log('Hello, World!');
   LiquidCore.on('sendreq', () => {
     let reqid = "miao" + Math.floor(Math.random() * 23) + 1;
-    request.add(reqid);
     LiquidCore.emit('__VVC_SDK_JS_TO_NATIVE_REQ__', {
       id: reqid,
       type: "_VVC_JS_",
