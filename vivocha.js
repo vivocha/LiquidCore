@@ -1428,7 +1428,6 @@ __d(function (global, _$$_REQUIRE, module, exports, _dependencyMap) {
 
   setInterval(() => {}, 1000);
   console.log('Hello, World!');
-  requests = [];
   LiquidCore.on('sendreq', () => {
     reqid = "miao" + Math.floor(Math.random() * 23) + 1;
     request.add(reqid);
@@ -1447,7 +1446,7 @@ __d(function (global, _$$_REQUIRE, module, exports, _dependencyMap) {
       id: msg,
       payload: {
         text: "risposto ti ho",
-        reqs: requests
+        reqs: [1, 2, 3, 4]
       },
       stizia: true
     });
