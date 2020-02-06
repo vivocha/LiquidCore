@@ -1422,14 +1422,167 @@ __d(function (global, _$$_REQUIRE, module, exports, _dependencyMap) {
 __d(function (global, _$$_REQUIRE, module, exports, _dependencyMap) {
   "use strict";
 
+  const {
+    LiquidCore
+  } = _$$_REQUIRE(_dependencyMap[0], 'liquidcore');
+
   setInterval(() => {}, 1000);
   console.log('Hello, World!');
-  LiquidCore.on('ping', () => {
-    LiquidCore.emit('pong', {
-      message: 'Hello, World!'
+  requests = [];
+  LiquidCore.on('sendreq', () => {
+    reqid = "miao" + Math.floor(Math.random() * 23) + 1;
+    request.add(reqid);
+    LiquidCore.emit('__VVC_SDK_JS_TO_NATIVE_REQ__', {
+      id: reqid,
+      type: "_VVC_JS_",
+      payload: {
+        a: 1,
+        b: true,
+        c: "stringa"
+      }
     });
-    process.exit(0);
+  });
+  LiquidCore.on('sendres', msg => {
+    LiquidCore.emit('__VVC_SDK_JS_TO_NATIVE_RES__', {
+      id: msg,
+      payload: {
+        text: "risposto ti ho",
+        reqs: requests
+      },
+      stizia: true
+    });
   });
   LiquidCore.emit('ready');
-},1,[],"index.js");
+},1,[2],"index.js");
+__d(function (global, _$$_REQUIRE, module, exports, _dependencyMap) {
+  "use strict";
+
+  const events = _$$_REQUIRE(_dependencyMap[0], 'events');
+
+  const fs = _$$_REQUIRE(_dependencyMap[1], 'fs');
+
+  const path = _$$_REQUIRE(_dependencyMap[2], 'path');
+
+  const join = path.join;
+  let lc = global && global.LiquidCore;
+
+  if (!lc) {
+    class LiquidCore extends events {}
+
+    lc = new LiquidCore();
+    const native_require = global.require;
+    const defaults = {
+      arrow: process.env.NODE_BINDINGS_ARROW || ' → ',
+      compiled: process.env.NODE_BINDINGS_COMPILED_DIR || 'compiled',
+      platform: process.platform,
+      arch: process.arch,
+      version: process.versions.node,
+      bindings: 'bindings.node',
+      bindingsjs: 'bindings.node.js',
+      try: [['module_root', 'build', 'bindings'], ['module_root', 'build', 'Debug', 'bindings'], ['module_root', 'build', 'Release', 'bindings'], ['module_root', 'out', 'Debug', 'bindings'], ['module_root', 'Debug', 'bindings'], ['module_root', 'out', 'Release', 'bindings'], ['module_root', 'Release', 'bindings'], ['module_root', 'build', 'default', 'bindings'], ['module_root', 'compiled', 'version', 'platform', 'arch', 'bindings'], ['module_root', 'mocks', 'bindingsjs']]
+    };
+
+    function bindings(opts) {
+      if (typeof opts == 'string') {
+        opts = {
+          bindings: opts
+        };
+      } else if (!opts) {
+        opts = {};
+      }
+
+      Object.keys(defaults).map(function (i) {
+        if (!(i in opts)) opts[i] = defaults[i];
+      });
+
+      if (path.extname(opts.bindings) != '.node') {
+        opts.bindings += '.node';
+      }
+
+      opts.bindingsjs = opts.bindings + '.js';
+      var requireFunc = native_require;
+      var tries = [],
+          i = 0,
+          l = opts.try.length,
+          n,
+          b,
+          err;
+      let modules = [];
+      let mods = fs.readdirSync(path.resolve('.', 'node_modules'));
+      mods.forEach(m => m.startsWith('@') ? modules = modules.concat(fs.readdirSync(path.resolve('.', 'node_modules', m)).map(f => m + '/' + f)) : modules.push(m));
+
+      for (var j = 0; j < modules.length; j++) {
+        opts.module_root = modules[j];
+
+        for (i = 0; i < l; i++) {
+          n = join.apply(null, opts.try[i].map(function (p) {
+            return opts[p] || p;
+          }));
+          tries.push(n);
+
+          try {
+            b = opts.path ? requireFunc.resolve(n) : requireFunc(n);
+
+            if (!opts.path) {
+              b.path = n;
+            }
+
+            return b;
+          } catch (e) {
+            if (!/not find/i.test(e.message)) {
+              throw e;
+            }
+          }
+        }
+      }
+
+      err = new Error('Could not locate the bindings file. Tried:\n' + tries.map(function (a) {
+        return opts.arrow + a;
+      }).join('\n'));
+      err.tries = tries;
+      throw err;
+    }
+
+    lc.require = module => {
+      if (path.extname(module) == '.node') {
+        console.warn('WARN: Attempting to bind native module ' + path.basename(module));
+        console.warn('WARN: Consider using a browser implementation or make sure you have a LiquidCore addon.');
+        return bindings(path.basename(module));
+      }
+
+      return native_require(module);
+    };
+
+    lc.require.__proto__ = native_require.__proto__;
+
+    if (global) {
+      global.LiquidCore = lc;
+    }
+  }
+
+  module.exports = {
+    LiquidCore: lc
+  };
+},2,[3,4,5],"node_modules/liquidcore/index.js");
+__d(function (global, _$$_REQUIRE, module, exports, _dependencyMap) {
+  "use strict";
+
+  (() => {
+    module.exports = global.node_require('events');
+  })();
+},3,[],"node_modules/liquidcore-cli/lib/node-native/events.js");
+__d(function (global, _$$_REQUIRE, module, exports, _dependencyMap) {
+  "use strict";
+
+  (() => {
+    module.exports = global.node_require('fs');
+  })();
+},4,[],"node_modules/liquidcore-cli/lib/node-native/fs.js");
+__d(function (global, _$$_REQUIRE, module, exports, _dependencyMap) {
+  "use strict";
+
+  (() => {
+    module.exports = global.node_require('path');
+  })();
+},5,[],"node_modules/liquidcore-cli/lib/node-native/path.js");
 require(0);
